@@ -1,0 +1,33 @@
+{
+    "name": "rutatiina/petty-cash",
+    "description": "Laravel Package to manage petty cash",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gilbert Rutatiina",
+            "email": "rutatiina@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "laravel/framework": "^8.0",
+        "rutatiina/tenant": "dev-main",
+        "rutatiina/financial-accounting": "dev-main",
+        "rutatiina/tax": "dev-main",
+        "rutatiina/contact": "dev-main",
+        "rutatiina/item": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rutatiina\\PettyCash\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rutatiina\\PettyCash\\PettyCashServiceProvider"
+            ]
+        }
+    }
+}
