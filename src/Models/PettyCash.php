@@ -1,12 +1,12 @@
 <?php
 
-namespace Rutatiina\Expense\Models;
+namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class Expense extends Model
+class PettyCash extends Model
 {
     use LogsActivity;
 
@@ -125,17 +125,17 @@ class Expense extends Model
 
     public function items()
     {
-        return $this->hasMany('Rutatiina\Expense\Models\ExpenseItem', 'expense_id')->orderBy('id', 'asc');
+        return $this->hasMany('Rutatiina\PettyCash\Models\PettyCashItem', 'expense_id')->orderBy('id', 'asc');
     }
 
     public function ledgers()
     {
-        return $this->hasMany('Rutatiina\Expense\Models\ExpenseLedger', 'expense_id')->orderBy('id', 'asc');
+        return $this->hasMany('Rutatiina\PettyCash\Models\PettyCashLedger', 'expense_id')->orderBy('id', 'asc');
     }
 
     public function comments()
     {
-        return $this->hasMany('Rutatiina\Expense\Models\ExpenseComment', 'expense_id')->latest();
+        return $this->hasMany('Rutatiina\PettyCash\Models\PettyCashComment', 'expense_id')->latest();
     }
 
     public function contact()
@@ -145,7 +145,7 @@ class Expense extends Model
 
     public function item_taxes()
     {
-        return $this->hasMany('Rutatiina\Expense\Models\ExpenseItemTax', 'expense_id', 'id');
+        return $this->hasMany('Rutatiina\PettyCash\Models\PettyCashItemTax', 'expense_id', 'id');
     }
 
     public function getTaxesAttribute()

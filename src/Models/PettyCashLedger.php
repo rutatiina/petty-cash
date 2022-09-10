@@ -1,16 +1,16 @@
 <?php
 
-namespace Rutatiina\Expense\Models;
+namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class ExpenseItem extends Model
+class PettyCashLedger extends Model
 {
     use LogsActivity;
 
-    protected static $logName = 'TxnItem';
+    protected static $logName = 'TxnLedger';
     protected static $logFillable = true;
     protected static $logAttributes = ['*'];
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -18,7 +18,7 @@ class ExpenseItem extends Model
 
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_items';
+    protected $table = 'rg_expense_ledgers';
 
     protected $primaryKey = 'id';
 
@@ -36,24 +36,9 @@ class ExpenseItem extends Model
         static::addGlobalScope(new TenantIdScope);
     }
 
-    public function getTaxesAttribute($value)
-    {
-        $_array_ = json_decode($value);
-        if (is_array($_array_)) {
-            return $_array_;
-        } else {
-            return [];
-        }
-    }
-
     public function expense()
     {
-        return $this->hasOne('Rutatiina\Expense\Models\Expense', 'id', 'expense_id');
-    }
-
-    public function taxes()
-    {
-        return $this->hasMany('Rutatiina\Expense\Models\ExpenseItemTax', 'expense_item_id', 'id');
+        return $this->belongsTo('Rutatiina\PettyCash\Models\PettyCash', 'expense_id');
     }
 
 }

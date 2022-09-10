@@ -1,12 +1,12 @@
 <?php
 
-namespace Rutatiina\Expense\Models;
+namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class RecurringExpenseItem extends Model
+class PettyCashItem extends Model
 {
     use LogsActivity;
 
@@ -18,7 +18,7 @@ class RecurringExpenseItem extends Model
 
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_recurring_expense_items';
+    protected $table = 'rg_expense_items';
 
     protected $primaryKey = 'id';
 
@@ -46,14 +46,14 @@ class RecurringExpenseItem extends Model
         }
     }
 
-    public function recurring_expense()
+    public function expense()
     {
-        return $this->belongsTo('Rutatiina\Expense\Models\RecurringExpense', 'recurring_expense_id');
+        return $this->hasOne('Rutatiina\PettyCash\Models\PettyCash', 'id', 'expense_id');
     }
 
     public function taxes()
     {
-        return $this->hasMany('Rutatiina\Expense\Models\RecurringExpenseItemTax', 'recurring_Expense_item_id', 'id');
+        return $this->hasMany('Rutatiina\PettyCash\Models\PettyCashItemTax', 'expense_item_id', 'id');
     }
 
 }

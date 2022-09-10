@@ -1,16 +1,16 @@
 <?php
 
-namespace Rutatiina\Expense\Models;
+namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class RecurringExpenseSetting extends Model
+class PettyCashSetting extends Model
 {
     use LogsActivity;
 
-    protected static $logName = 'Recurring Expense Settings';
+    protected static $logName = 'PettyCash Settings';
     protected static $logFillable = true;
     protected static $logAttributes = ['*'];
     protected static $logAttributesToIgnore = ['updated_at'];
@@ -18,7 +18,7 @@ class RecurringExpenseSetting extends Model
 
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_recurring_expense_settings';
+    protected $table = 'rg_expense_settings';
 
     protected $primaryKey = 'id';
 

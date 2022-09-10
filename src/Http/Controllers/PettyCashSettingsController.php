@@ -1,6 +1,6 @@
 <?php
 
-namespace Rutatiina\Expense\Http\Controllers;
+namespace Rutatiina\PettyCash\Http\Controllers;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Request as FacadesRequest;
@@ -11,7 +11,7 @@ use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Item\Traits\ItemsVueSearchSelect;
 use Rutatiina\FinancialAccounting\Models\Account;
 
-class ExpenseSettingsController extends Controller
+class PettyCashSettingsController extends Controller
 {
     use FinancialAccountingTrait;
     use ItemsVueSearchSelect;

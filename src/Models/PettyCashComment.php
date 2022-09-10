@@ -1,12 +1,12 @@
 <?php
 
-namespace Rutatiina\Expense\Models;
+namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class RecurringExpenseComment extends Model
+class PettyCashComment extends Model
 {
     use LogsActivity;
 
@@ -18,7 +18,7 @@ class RecurringExpenseComment extends Model
 
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_recurring_expense_comments';
+    protected $table = 'rg_expense_comments';
 
     protected $primaryKey = 'id';
 

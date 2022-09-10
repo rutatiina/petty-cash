@@ -1,12 +1,12 @@
 <?php
 
-namespace Rutatiina\Expense\Models;
+namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class ExpenseItemTax extends Model
+class PettyCashItemTax extends Model
 {
     use LogsActivity;
 
@@ -53,12 +53,12 @@ class ExpenseItemTax extends Model
 
     public function expense()
     {
-        return $this->belongsTo('Rutatiina\Expense\Models\Expense', 'expense_id', 'id');
+        return $this->belongsTo('Rutatiina\PettyCash\Models\PettyCash', 'expense_id', 'id');
     }
 
     public function expense_item()
     {
-        return $this->belongsTo('Rutatiina\Expense\Models\ExpenseItem', 'expense_item_id', 'id');
+        return $this->belongsTo('Rutatiina\PettyCash\Models\PettyCashItem', 'expense_item_id', 'id');
     }
 
 }
