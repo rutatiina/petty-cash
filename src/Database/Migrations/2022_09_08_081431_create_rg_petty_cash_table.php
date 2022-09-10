@@ -13,7 +13,7 @@ class CreateRgExpensesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('rg_expenses', function (Blueprint $table) {
+        Schema::connection('tenant')->create('rg_petty_cash', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -33,24 +33,21 @@ class CreateRgExpensesTable extends Migration
             $table->time('time');
             $table->unsignedBigInteger('debit_financial_account_code')->nullable();
             $table->unsignedBigInteger('credit_financial_account_code')->nullable();
-            $table->unsignedBigInteger('contact_id');
-            $table->string('contact_name', 50);
-            $table->string('contact_address', 50);
+            $table->unsignedBigInteger('contact_id')->nullable();
             $table->string('reference', 100)->nullable();
             $table->string('base_currency', 3);
             $table->string('quote_currency', 3);
             $table->unsignedDecimal('exchange_rate', 20,10);
-            $table->unsignedDecimal('taxable_amount', 20,5);
-            $table->unsignedDecimal('total', 20, 5);
+            $table->unsignedDecimal('amount', 20, 5);
             $table->boolean('balances_where_updated')->default(0);
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->unsignedBigInteger('store_id')->nullable();
             $table->string('status', 20)->nullable();
             $table->unsignedTinyInteger('sent')->nullable();
-            $table->string('payment_mode', 50)->nullable();
-            $table->string('payment_terms', 100)->nullable();
-            $table->string('contact_notes', 250)->nullable();
-            $table->string('terms_and_conditions', 250)->nullable();
+
+            $table->unsignedBigInteger('project_id')->nullable();
+            $table->unsignedBigInteger('petty_cash_id');
+            $table->string('description', 250)->nullable();
 
         });
     }
@@ -62,6 +59,6 @@ class CreateRgExpensesTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('rg_expenses');
+        Schema::connection('tenant')->dropIfExists('rg_petty_cash');
     }
 }

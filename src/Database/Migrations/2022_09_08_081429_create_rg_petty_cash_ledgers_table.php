@@ -13,7 +13,7 @@ class CreateRgExpenseLedgersTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('rg_expense_ledgers', function (Blueprint $table) {
+        Schema::connection('tenant')->create('rg_petty_cash_ledgers', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -26,7 +26,7 @@ class CreateRgExpenseLedgersTable extends Migration
 
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('expense_id');
+            $table->unsignedBigInteger('petty_cash_id');
             $table->date('date');
             $table->date('external_date');
             $table->unsignedBigInteger('financial_account_code');
@@ -35,7 +35,7 @@ class CreateRgExpenseLedgersTable extends Migration
             $table->string('base_currency', 3);
             $table->string('quote_currency', 3);
             $table->unsignedDecimal('exchange_rate', 20,5);
-            $table->unsignedBigInteger('contact_id');
+            $table->unsignedBigInteger('contact_id')->nullable();
         });
     }
 
@@ -46,6 +46,6 @@ class CreateRgExpenseLedgersTable extends Migration
      */
     public function down()
     {
-        Schema::connection('tenant')->dropIfExists('rg_expense_ledgers');
+        Schema::connection('tenant')->dropIfExists('rg_petty_cash_ledgers');
     }
 }
