@@ -2,33 +2,27 @@
 
 namespace Rutatiina\PettyCash\Http\Controllers;
 
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Rutatiina\PettyCash\Models\PettyCashEntry;
+use Rutatiina\PettyCash\Models\PettyCashSetting;
+use Rutatiina\FinancialAccounting\Models\Account;
+use Rutatiina\PettyCash\Services\PettyCashService;
 use Illuminate\Support\Facades\Request as FacadesRequest;
-use Rutatiina\Expense\Models\Expense;
-use Rutatiina\Expense\Models\ExpenseSetting;
-use Rutatiina\Expense\Services\ExpenseService;
-use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
-use Rutatiina\Contact\Traits\ContactTrait;
-use Yajra\DataTables\Facades\DataTables;
-use Rutatiina\Expense\Traits\Item as TxnItem;
 
 class PettyCashController extends Controller
 {
-    use FinancialAccountingTrait;
-    use ContactTrait;
-    use TxnItem;
 
     // >> get the item attributes template << !!important
 
     public function __construct()
     {
-        $this->middleware('permission:expenses.view');
-        $this->middleware('permission:expenses.create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:expenses.update', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:expenses.delete', ['only' => ['destroy']]);
+        // $this->middleware('permission:expenses.view');
+        // $this->middleware('permission:expenses.create', ['only' => ['create', 'store']]);
+        // $this->middleware('permission:expenses.update', ['only' => ['edit', 'update']]);
+        // $this->middleware('permission:expenses.delete', ['only' => ['destroy']]);
     }
 
     public function index(Request $request)
@@ -39,7 +33,7 @@ class PettyCashController extends Controller
             return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
-        $query = Expense::query();
+        $query = PettyCashEntry::query();
 
         if ($request->contact)
         {
@@ -66,63 +60,50 @@ class PettyCashController extends Controller
             return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
-        $settings = ExpenseSetting::has('financial_account_to_debit')->with(['financial_account_to_debit'])->firstOrFail();
+
+        $debitAccount = PettyCashService::pettyCashAccount();
 
         $tenant = Auth::user()->tenant;
 
-        $txnAttributes = (new Expense())->rgGetAttributes();
+        $txnAttributes = (new PettyCashEntry())->rgGetAttributes();
 
-        $txnAttributes['number'] = ExpenseService::nextNumber();
+        $txnAttributes['number'] = PettyCashService::nextNumber();
         $txnAttributes['status'] = 'approved';
         $txnAttributes['contact_id'] = '';
         $txnAttributes['contact'] = json_decode('{"currencies":[]}'); #required
         $txnAttributes['date'] = date('Y-m-d');
         $txnAttributes['base_currency'] = $tenant->base_currency;
         $txnAttributes['quote_currency'] = $tenant->base_currency;
-        $txnAttributes['taxes'] = json_decode('{}');
-        $txnAttributes['payment_mode'] = optional($settings)->payment_mode_default;
-        $txnAttributes['debit_financial_account_code'] = optional($settings)->debit_financial_account_code;
-        $txnAttributes['credit_financial_account_code'] = optional($settings)->credit_financial_account_code;
-        $txnAttributes['contact_notes'] = null;
-        $txnAttributes['terms_and_conditions'] = null;
-        $txnAttributes['items'] = [
-            [
-                'selectedTaxes' => [], #required
-                'selectedItem' => json_decode('{}'), #required
-                'displayTotal' => 0,
-                'description' => '',
-                'amount' => 0,
-                'contact_id' => '',
-            ]
-        ];
+        $txnAttributes['debit_financial_account_code'] = $debitAccount->code;
+        $txnAttributes['credit_financial_account_code'] = null;
 
         return [
-            'pageTitle' => 'Record Expense', #required
+            'pageTitle' => 'Add Petty cash', #required
             'pageAction' => 'Record', #required
-            'txnUrlStore' => '/expenses', #required
+            'txnUrlStore' => '/petty-cash', #required
             'txnAttributes' => $txnAttributes, #required
         ];
     }
 
     public function store(Request $request)
     {
-        return $request;
+        // return $request;
 
-        $storeService = ExpenseService::store($request);
+        $storeService = PettyCashService::store($request);
 
         if ($storeService == false)
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => PettyCashService::$errors
             ];
         }
 
         return [
             'status' => true,
-            'messages' => ['Expense saved'],
+            'messages' => ['Petty cash debited'],
             'number' => 0,
-            'callback' => URL::route('expenses.show', [$storeService->id], false)
+            'callback' => '/petty-cash' //URL::route('petty-cash.show', [$storeService->id], false)
         ];
 
     }
@@ -135,8 +116,8 @@ class PettyCashController extends Controller
             return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
-        $txn = Expense::findOrFail($id);
-        $txn->load('contact', 'items.taxes');
+        $txn = PettyCashEntry::findOrFail($id);
+        $txn->load('contact');
         $txn->setAppends([
             'taxes',
             'number_string',
@@ -154,12 +135,12 @@ class PettyCashController extends Controller
             return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
-        $txnAttributes = ExpenseService::edit($id);
+        $txnAttributes = PettyCashService::edit($id);
 
         $data = [
-            'pageTitle' => 'Edit expense', #required
+            'pageTitle' => 'Edit petty cash record', #required
             'pageAction' => 'Edit', #required
-            'txnUrlStore' => '/expenses/' . $id, #required
+            'txnUrlStore' => '/petty-cash/' . $id, #required
             'txnAttributes' => $txnAttributes, #required
         ];
 
@@ -171,40 +152,40 @@ class PettyCashController extends Controller
         //editing an expense is not currently allowed
         //return redirect()->back();
 
-        $storeService = ExpenseService::update($request);
+        $storeService = PettyCashService::update($request);
 
         if ($storeService == false)
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => PettyCashService::$errors
             ];
         }
 
         return [
             'status' => true,
-            'messages' => ['Expense updated'],
-            'callback' => URL::route('expenses.show', [$storeService->id], false)
+            'messages' => ['Petty cash updated'],
+            'callback' => URL::route('petty-cash.show', [$storeService->id], false)
         ];
     }
 
     public function destroy($id)
     {
-        $destroy = ExpenseService::destroy($id);
+        $destroy = PettyCashService::destroy($id);
 
         if ($destroy)
         {
             return [
                 'status' => true,
-                'messages' => ['Expense deleted'],
-                'callback' => URL::route('expenses.index', [], false)
+                'messages' => ['Petty cash record deleted'],
+                'callback' => URL::route('petty-cash.index', [], false)
             ];
         }
         else
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => PettyCashService::$errors
             ];
         }
     }
@@ -213,19 +194,19 @@ class PettyCashController extends Controller
 
     public function approve($id)
     {
-        $approve = ExpenseService::approve($id);
+        $approve = PettyCashService::approve($id);
 
         if ($approve == false)
         {
             return [
                 'status' => false,
-                'messages' => ExpenseService::$errors
+                'messages' => PettyCashService::$errors,
             ];
         }
 
         return [
             'status' => true,
-            'messages' => ['Expenses approved'],
+            'messages' => ['Petty cash record approved'],
         ];
 
     }
@@ -238,71 +219,31 @@ class PettyCashController extends Controller
             return view('ui.limitless::layout_2-ltr-default.appVue');
         }
 
-        $txnAttributes = ExpenseService::copy($id);
+        $txnAttributes = PettyCashService::copy($id);
 
         $data = [
-            'pageTitle' => 'Copy Expense', #required
+            'pageTitle' => 'Copy PettyCash', #required
             'pageAction' => 'Copy', #required
-            'txnUrlStore' => '/expenses', #required
+            'txnUrlStore' => '/petty-cash', #required
             'txnAttributes' => $txnAttributes, #required
         ];
 
         return $data;
     }
 
-    public function datatables(Request $request)
+    //CR account / Account which is the source of the petty cash
+    public function creditAccounts()
     {
+        $debitAccount = PettyCashService::pettyCashAccount();
 
-        $txns = Transaction::setRoute('show', route('accounting.purchases.expenses.show', '_id_'))
-            ->setRoute('copy', route('accounting.purchases.expenses.copy', '_id_'))
-            ->setRoute('edit', route('accounting.purchases.expenses.edit', '_id_'))
-            ->setSortBy($request->sort_by)
-            ->paginate(false)
-            ->findByEntree($this->txnEntreeSlug);
-
-        return Datatables::of($txns)->make(true);
+        return Account::select(['code', 'name', 'type'])
+        ->whereIn('type', ['asset', 'equity'])
+        ->where('code', '!=', $debitAccount->code)
+        ->orderBy('name', 'asc')
+        ->limit(100)
+        ->get()
+        ->each->setAppends([])
+        ->groupBy('type');
     }
 
-    public function exportToExcel(Request $request)
-    {
-
-        $txns = collect([]);
-
-        $txns->push([
-            'DATE',
-            'EXPENSE ACCOUNT',
-            'REFERENCE',
-            'SUPPLIER / VENDOR',
-            'PAID THROUGH',
-            'CUSTOMER NAME',
-            'AMOUNT',
-            ' ', //Currency
-        ]);
-
-        foreach (array_reverse($request->ids) as $id)
-        {
-            $txn = Transaction::transaction($id);
-
-            $txns->push([
-                $txn->date,
-                $txn->debit_account->name,
-                $txn->reference,
-                $txn->contact_name,
-                $txn->credit_account->name,
-                '',
-                $txn->total,
-                $txn->base_currency,
-            ]);
-        }
-
-        $export = $txns->downloadExcel(
-            'maccounts-expenses-export-' . date('Y-m-d-H-m-s') . '.xlsx',
-            null,
-            false
-        );
-
-        //$books->load('author', 'publisher'); //of no use
-
-        return $export;
-    }
 }

@@ -3,22 +3,13 @@
 namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class PettyCashSetting extends Model
+class PettyCashEntry extends Model
 {
-    use LogsActivity;
-
-    protected static $logName = 'PettyCash Settings';
-    protected static $logFillable = true;
-    protected static $logAttributes = ['*'];
-    protected static $logAttributesToIgnore = ['updated_at'];
-    protected static $logOnlyDirty = true;
-
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_settings';
+    protected $table = 'rg_petty_cash_entries';
 
     protected $primaryKey = 'id';
 
@@ -33,6 +24,10 @@ class PettyCashSetting extends Model
         'created_at',
         'updated_at',
     ];
+    protected $appends = [
+        'number_string',
+        'total_in_words',
+    ];
 
     /**
      * The "booting" method of the model.
@@ -44,6 +39,13 @@ class PettyCashSetting extends Model
         parent::boot();
 
         static::addGlobalScope(new TenantIdScope);
+
+        self::deleting(function($txn) { // before delete() method call this
+             $txn->ledgers()->each(function($row) {
+                $row->delete();
+             });
+        });
+
     }
 
     public function rgGetAttributes()
@@ -67,17 +69,50 @@ class PettyCashSetting extends Model
             }
         }
 
+        //add the relationships
+        $attributes['type'] = [];
+        $attributes['debit_account'] = [];
+        $attributes['credit_account'] = [];
+        $attributes['ledgers'] = [];
+        $attributes['contact'] = [];
+
         return $attributes;
     }
 
-    public function financial_account_to_debit()
+    public function getContactAddressArrayAttribute()
+    {
+        return preg_split("/\r\n|\n|\r/", $this->contact_address);
+    }
+
+    public function getNumberStringAttribute()
+    {
+        return $this->number_prefix.(str_pad(($this->number), $this->number_length, "0", STR_PAD_LEFT)).$this->number_postfix;
+    }
+
+    public function getTotalInWordsAttribute()
+    {
+        $f = new \NumberFormatter( locale_get_default(), \NumberFormatter::SPELLOUT );
+        return ucfirst($f->format($this->total));
+    }
+
+    public function debit_account()
     {
         return $this->hasOne('Rutatiina\FinancialAccounting\Models\Account', 'code', 'debit_financial_account_code');
     }
 
-    public function financial_account_to_credit()
+    public function credit_account()
     {
         return $this->hasOne('Rutatiina\FinancialAccounting\Models\Account', 'code', 'credit_financial_account_code');
+    }
+
+    public function ledgers()
+    {
+        return $this->hasMany('Rutatiina\PettyCash\Models\PettyCashEntryLedger', 'petty_cash_entry_id')->orderBy('id', 'asc');
+    }
+
+    public function contact()
+    {
+        return $this->hasOne('Rutatiina\Contact\Models\Contact', 'id', 'contact_id');
     }
 
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Rutatiina\Expense\Services;
+namespace Rutatiina\PettyCash\Services;
 
-use Rutatiina\Expense\Models\ExpenseLedger;
+use Rutatiina\PettyCash\Models\PettyCashLedger;
 
-class ExpenseLedgersService
+class PettyCashLedgersService
 {
     public static $errors = [];
 
@@ -17,8 +17,8 @@ class ExpenseLedgersService
     {
         foreach ($data['ledgers'] as &$ledger)
         {
-            $ledger['expense_id'] = $data['id'];
-            ExpenseLedger::create($ledger);
+            $ledger['petty_cash_id'] = $data['id'];
+            PettyCashLedger::create($ledger);
         }
         unset($ledger);
 

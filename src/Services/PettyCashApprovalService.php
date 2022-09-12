@@ -1,11 +1,11 @@
 <?php
 
-namespace Rutatiina\Expense\Services;
+namespace Rutatiina\PettyCash\Services;
 
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
 
-trait ExpenseApprovalService
+trait PettyCashApprovalService
 {
     public static function run($txn)
     {

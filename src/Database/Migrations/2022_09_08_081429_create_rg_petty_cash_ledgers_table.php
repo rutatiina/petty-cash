@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRgExpenseLedgersTable extends Migration
+class CreateRgPettyCashLedgersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRgExpenseLedgersTable extends Migration
      */
     public function up()
     {
-        Schema::connection('tenant')->create('rg_petty_cash_ledgers', function (Blueprint $table) {
+        Schema::connection('tenant')->create('rg_petty_cash_entry_ledgers', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -26,7 +26,7 @@ class CreateRgExpenseLedgersTable extends Migration
 
             //>> table columns
             $table->unsignedBigInteger('project_id')->nullable();
-            $table->unsignedBigInteger('petty_cash_id');
+            $table->unsignedBigInteger('petty_cash_entry_id');
             $table->date('date');
             $table->date('external_date');
             $table->unsignedBigInteger('financial_account_code');

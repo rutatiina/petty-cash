@@ -3,24 +3,17 @@
 namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
 
-class PettyCashComment extends Model
+class PettyCashEntryLedger extends Model
 {
-    use LogsActivity;
-
-    protected static $logName = 'TxnComment';
-    protected static $logFillable = true;
-    protected static $logAttributes = ['*'];
-    protected static $logAttributesToIgnore = ['updated_at'];
-    protected static $logOnlyDirty = true;
-
     protected $connection = 'tenant';
 
-    protected $table = 'rg_expense_comments';
+    protected $table = 'rg_petty_cash_entry_ledgers';
 
     protected $primaryKey = 'id';
+
+    protected $guarded = ['id'];
 
     /**
      * The "booting" method of the model.
@@ -32,6 +25,11 @@ class PettyCashComment extends Model
         parent::boot();
 
         static::addGlobalScope(new TenantIdScope);
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo('Rutatiina\PettyCash\Models\PettyCash', 'petty_cash_entry_id');
     }
 
 }
