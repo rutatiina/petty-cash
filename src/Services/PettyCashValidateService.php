@@ -20,7 +20,7 @@ class PettyCashValidateService
 
         //validate the data
         $customMessages = [
-            'credit_financial_account_code.required' => "The petty cash source accout field is required.",
+            'credit_financial_account_code.required' => "The petty cash source account field is required.",
         ];
 
         $rules = [
