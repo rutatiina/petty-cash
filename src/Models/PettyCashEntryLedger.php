@@ -4,9 +4,12 @@ namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PettyCashEntryLedger extends Model
 {
+    use SoftDeletes;
+    
     protected $connection = 'tenant';
 
     protected $table = 'rg_petty_cash_entry_ledgers';

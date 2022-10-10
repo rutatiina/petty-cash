@@ -4,9 +4,12 @@ namespace Rutatiina\PettyCash\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Rutatiina\Tenant\Scopes\TenantIdScope;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PettyCashEntry extends Model
 {
+    use SoftDeletes;
+    
     protected $connection = 'tenant';
 
     protected $table = 'rg_petty_cash_entries';
@@ -40,9 +43,15 @@ class PettyCashEntry extends Model
 
         static::addGlobalScope(new TenantIdScope);
 
-        self::deleting(function($txn) { // before delete() method call this
+        self::deleted(function($txn) { // before delete() method call this
              $txn->ledgers()->each(function($row) {
                 $row->delete();
+             });
+        });
+
+        self::restored(function($txn) {
+             $txn->ledgers()->each(function($row) {
+                $row->restore();
              });
         });
 
