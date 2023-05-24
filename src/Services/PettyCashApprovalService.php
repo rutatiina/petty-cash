@@ -21,9 +21,6 @@ trait PettyCashApprovalService
             return false;
         }
 
-        //inventory checks and inventory balance update if needed
-        //$this->inventory(); //currentlly inventory update for estimates is disabled
-
         //Update the account balances
         AccountBalanceUpdateService::doubleEntry($txn);
 

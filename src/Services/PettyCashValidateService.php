@@ -70,38 +70,6 @@ class PettyCashValidateService
         $data['description'] = $requestInstance->input('description', null);
         $data['amount'] = $requestInstance->input('amount', 0);
 
-
-        //DR ledger
-        $data['ledgers'][] = [
-            'financial_account_code' => $data['debit_financial_account_code'],
-            'effect' => 'debit',
-            'total' => $data['amount'],
-            'contact_id' => $data['contact_id']
-        ];
-
-        //CR ledger
-        $data['ledgers'][] = [
-            'financial_account_code' => $data['credit_financial_account_code'],
-            'effect' => 'credit',
-            'total' => $data['amount'],
-            'contact_id' => $data['contact_id']
-        ];
-
-        //print_r($data); exit;
-
-        //Now add the default values to items and ledgers
-
-        foreach ($data['ledgers'] as &$ledger)
-        {
-            $ledger['tenant_id'] = $data['tenant_id'];
-            $ledger['date'] = date('Y-m-d', strtotime($data['date']));
-            $ledger['base_currency'] = $data['base_currency'];
-            $ledger['quote_currency'] = $data['quote_currency'];
-            $ledger['exchange_rate'] = $data['exchange_rate'];
-        }
-        unset($ledger);
-
-        //Return the array of txns
         //print_r($data); exit;
 
         return $data;

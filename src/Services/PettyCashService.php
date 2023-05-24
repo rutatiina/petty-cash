@@ -104,12 +104,6 @@ class PettyCashService
 
             $data['id'] = $Txn->id;
 
-
-            //Save the ledgers >> $data['ledgers']; and update the balances
-            $Txn->ledgers()->createMany($data['ledgers']);
-
-            //$Txn->refresh(); //make the ledgers relationship infor available
-
             //update financial account and contact balances accordingly
             PettyCashApprovalService::run($Txn);
 
@@ -159,7 +153,7 @@ class PettyCashService
 
         try
         {
-            $Txn = PettyCashEntry::with('ledgers')->findOrFail($data['id']);
+            $Txn = PettyCashEntry::findOrFail($data['id']);
 
             if ($Txn->status == 'approved')
             {
@@ -174,7 +168,6 @@ class PettyCashService
             ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             //Delete affected relations
-            $Txn->ledgers()->delete();
             $Txn->delete();
 
             $txnStore = self::store($requestInstance);
@@ -216,7 +209,7 @@ class PettyCashService
 
         try
         {
-            $Txn = PettyCashEntry::with('ledgers')->findOrFail($id);
+            $Txn = PettyCashEntry::findOrFail($id);
 
             //reverse the account balances
             AccountBalanceUpdateService::doubleEntry($Txn, true);
@@ -225,7 +218,6 @@ class PettyCashService
             ContactBalanceUpdateService::doubleEntry($Txn, true);
 
             //Delete affected relations
-            $Txn->ledgers()->delete();
             $Txn->delete();
 
             DB::connection('tenant')->commit();
@@ -259,7 +251,7 @@ class PettyCashService
 
     public static function approve($id)
     {
-        $Txn = PettyCashEntry::with(['ledgers'])->findOrFail($id);
+        $Txn = PettyCashEntry::findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {
