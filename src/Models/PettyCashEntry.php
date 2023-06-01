@@ -49,15 +49,11 @@ class PettyCashEntry extends Model
         static::addGlobalScope(new TenantIdScope);
 
         self::deleted(function($txn) { // before delete() method call this
-             $txn->ledgers()->each(function($row) {
-                $row->delete();
-             });
+             //
         });
 
         self::restored(function($txn) {
-             $txn->ledgers()->each(function($row) {
-                $row->restore();
-             });
+             //
         });
 
     }
